@@ -9,8 +9,6 @@ async function create(req,res,next){
             return;
         }
 
-
-
         const event = await prisma.Event.create({
             data:{
                 name: name,

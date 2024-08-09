@@ -1,5 +1,6 @@
 const {PrismaClient} = require('@prisma/client');
 const crypto = require('crypto');
+const jwt = require('jsonwebtoken');
 
 const prisma = new PrismaClient();
 
@@ -21,17 +22,26 @@ async function login(req, res , next){
             return;
         }
         //create a token
-        const token = crypto.createHash('md5').update(user.username).digest('hex');
+
+        //using md5
+        // const token = crypto.createHash('md5').update(user.username).digest('hex');
+
+        //using hmac + sha256
+        // const token = crypto.createHmac('sha256' , process.env.SECRET_KEY || "This is a secret key").update(user.username).digest("base64");
 
         //store the token in database
-        await prisma.User.update({
-            where:{
-                id: user.id
-            },
-            data:{
-                token: token
-            }
-        });
+        // await prisma.User.update({
+        //     where:{
+        //         id: user.id
+        //     },
+        //     data:{
+        //         token: token
+        //     }
+        // });
+
+        //using jwt
+        // self-contained no need to store the token in the database
+        const token = jwt.sign({username: user.username} , process.env.SECRET_KEY , {expiresIn: '2m'});
 
         res.status(200).json({
             token: token,
